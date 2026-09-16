@@ -29,12 +29,6 @@ FROM eclipse-temurin:19.0.1_10-jre-alpine@sha256:fabe27bd9db502d484a11d3f571c2f4
 
 RUN apk add --no-cache ca-certificates
 
-# Download Stackdriver Profiler Java agent
-RUN mkdir -p /opt/cprof && \
-    wget -q -O- https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent_alpine.tar.gz \
-    | tar xzv -C /opt/cprof && \
-    rm -rf profiler_java_agent.tar.gz
-
 WORKDIR /app
 COPY --from=builder /app .
 

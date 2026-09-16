@@ -14,19 +14,6 @@
  * limitations under the License.
  */
 
-if(process.env.DISABLE_PROFILER) {
-  console.log("Profiler disabled.")
-}
-else {
-  console.log("Profiler enabled.")
-  require('@google-cloud/profiler').start({
-    serviceContext: {
-      service: 'currencyservice',
-      version: '1.0.0'
-    }
-  });
-}
-
 // Register GRPC OTel Instrumentation for trace propagation
 // regardless of whether tracing is emitted.
 const { GrpcInstrumentation } = require('@opentelemetry/instrumentation-grpc');

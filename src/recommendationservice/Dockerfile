@@ -16,9 +16,13 @@ FROM python:3.10.8-slim@sha256:abf96998af340975c26177b900c10cfb40716c985325303c0
 
 FROM base as builder
 
-RUN apt-get -qq update \
+# bullseye is EOL; deb.debian.org has pruned the security package builds
+# this image's metadata expects, so pin apt to the immutable snapshot from
+# when this base image was published instead.
+RUN printf 'deb http://snapshot.debian.org/archive/debian/20230201T000000Z bullseye main\ndeb http://snapshot.debian.org/archive/debian-security/20230201T000000Z bullseye-security main\n' > /etc/apt/sources.list \
+    && apt-get -o Acquire::Check-Valid-Until=false -qq update \
     && apt-get install -y --no-install-recommends \
-        wget g++ \
+        libc6 wget g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # get packages
