@@ -1,4 +1,6 @@
 #!/bin/bash
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
 
 # Update system packages
 sudo apt-get update -y
@@ -108,20 +110,3 @@ sudo ./aws/install
 rm -rf awscliv2.zip aws
 
 echo "✅ Initialization script completed successfully."
-
-# The steps below target the EKS cluster itself, not this jump host — they
-# will fail with "connection refused" until you've run
-# `aws eks update-kubeconfig --region us-east-1 --name mj-eks` on this box
-# so kubectl/helm have a kubeconfig pointing at the real cluster.
-
-# Install ArgoCD
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl get pods -n argocd
-
-# Install Prometheus and Grafana using Helm
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-kubectl create namespace prometheus
-helm install prometheus prometheus-community/kube-prometheus-stack -n prometheus
-kubectl get pods -n prometheus
