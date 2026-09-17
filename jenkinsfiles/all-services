@@ -53,6 +53,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/adservice:${BUILD_NUMBER}#g" adservice.yaml
                             git add adservice.yaml
                             git commit -m "Update adservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -90,6 +91,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/cartservice:${BUILD_NUMBER}#g" cartservice.yaml
                             git add cartservice.yaml
                             git commit -m "Update cartservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -127,6 +129,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/checkoutservice:${BUILD_NUMBER}#g" checkoutservice.yaml
                             git add checkoutservice.yaml
                             git commit -m "Update checkoutservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -164,6 +167,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/currencyservice:${BUILD_NUMBER}#g" currencyservice.yaml
                             git add currencyservice.yaml
                             git commit -m "Update currencyservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -201,6 +205,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/emailservice:${BUILD_NUMBER}#g" emailservice.yaml
                             git add emailservice.yaml
                             git commit -m "Update emailservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -238,6 +243,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend:${BUILD_NUMBER}#g" frontend.yaml
                             git add frontend.yaml
                             git commit -m "Update frontend image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -275,6 +281,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/loadgenerator:${BUILD_NUMBER}#g" loadgenerator.yaml
                             git add loadgenerator.yaml
                             git commit -m "Update loadgenerator image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -312,6 +319,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/paymentservice:${BUILD_NUMBER}#g" paymentservice.yaml
                             git add paymentservice.yaml
                             git commit -m "Update paymentservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -349,6 +357,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/productcatalogservice:${BUILD_NUMBER}#g" productcatalogservice.yaml
                             git add productcatalogservice.yaml
                             git commit -m "Update productcatalogservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -386,6 +395,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/recommendationservice:${BUILD_NUMBER}#g" recommendationservice.yaml
                             git add recommendationservice.yaml
                             git commit -m "Update recommendationservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
@@ -423,6 +433,7 @@ pipeline {
                             sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shippingservice:${BUILD_NUMBER}#g" shippingservice.yaml
                             git add shippingservice.yaml
                             git commit -m "Update shippingservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git pull origin ${GIT_BRANCH} --rebase
                             git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
                         """
                     }
