@@ -1,0 +1,433 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCOUNT_ID = sh(script: "aws sts get-caller-identity --query Account --output text", returnStdout: true).trim()
+        AWS_REGION     = "us-east-1"
+        GIT_REPO_NAME  = "ecommerce-microservices-aws-eks"
+        GIT_USER_NAME  = "JudeCodeHub"
+        GIT_EMAIL      = "JudeCodeHub@users.noreply.github.com"
+        GIT_BRANCH     = "main"
+    }
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout from Git') {
+            steps {
+                git branch: "${GIT_BRANCH}", url: "https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git"
+            }
+        }
+
+        stage('Build - adservice') {
+            steps {
+                dir('src/adservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t adservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - adservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag adservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/adservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/adservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - adservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/adservice:${BUILD_NUMBER}#g" adservice.yaml
+                            git add adservice.yaml
+                            git commit -m "Update adservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - cartservice') {
+            steps {
+                dir('src/cartservice/src') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t cartservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - cartservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag cartservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/cartservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/cartservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - cartservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/cartservice:${BUILD_NUMBER}#g" cartservice.yaml
+                            git add cartservice.yaml
+                            git commit -m "Update cartservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - checkoutservice') {
+            steps {
+                dir('src/checkoutservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t checkoutservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - checkoutservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag checkoutservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/checkoutservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/checkoutservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - checkoutservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/checkoutservice:${BUILD_NUMBER}#g" checkoutservice.yaml
+                            git add checkoutservice.yaml
+                            git commit -m "Update checkoutservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - currencyservice') {
+            steps {
+                dir('src/currencyservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t currencyservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - currencyservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag currencyservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/currencyservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/currencyservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - currencyservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/currencyservice:${BUILD_NUMBER}#g" currencyservice.yaml
+                            git add currencyservice.yaml
+                            git commit -m "Update currencyservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - emailservice') {
+            steps {
+                dir('src/emailservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t emailservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - emailservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag emailservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/emailservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/emailservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - emailservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/emailservice:${BUILD_NUMBER}#g" emailservice.yaml
+                            git add emailservice.yaml
+                            git commit -m "Update emailservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - frontend') {
+            steps {
+                dir('src/frontend') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t frontend ."
+                }
+            }
+        }
+
+        stage('Push to ECR - frontend') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag frontend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - frontend') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend:${BUILD_NUMBER}#g" frontend.yaml
+                            git add frontend.yaml
+                            git commit -m "Update frontend image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - loadgenerator') {
+            steps {
+                dir('src/loadgenerator') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t loadgenerator ."
+                }
+            }
+        }
+
+        stage('Push to ECR - loadgenerator') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag loadgenerator:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/loadgenerator:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/loadgenerator:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - loadgenerator') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/loadgenerator:${BUILD_NUMBER}#g" loadgenerator.yaml
+                            git add loadgenerator.yaml
+                            git commit -m "Update loadgenerator image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - paymentservice') {
+            steps {
+                dir('src/paymentservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t paymentservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - paymentservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag paymentservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/paymentservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/paymentservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - paymentservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/paymentservice:${BUILD_NUMBER}#g" paymentservice.yaml
+                            git add paymentservice.yaml
+                            git commit -m "Update paymentservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - productcatalogservice') {
+            steps {
+                dir('src/productcatalogservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t productcatalogservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - productcatalogservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag productcatalogservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/productcatalogservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - productcatalogservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/productcatalogservice:${BUILD_NUMBER}#g" productcatalogservice.yaml
+                            git add productcatalogservice.yaml
+                            git commit -m "Update productcatalogservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - recommendationservice') {
+            steps {
+                dir('src/recommendationservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t recommendationservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - recommendationservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag recommendationservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/recommendationservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/recommendationservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - recommendationservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/recommendationservice:${BUILD_NUMBER}#g" recommendationservice.yaml
+                            git add recommendationservice.yaml
+                            git commit -m "Update recommendationservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build - shippingservice') {
+            steps {
+                dir('src/shippingservice') {
+                    sh 'docker system prune -f'
+                    sh 'docker container prune -f'
+                    sh "docker build -t shippingservice ."
+                }
+            }
+        }
+
+        stage('Push to ECR - shippingservice') {
+            steps {
+                sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    docker tag shippingservice:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shippingservice:${BUILD_NUMBER}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shippingservice:${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Update Deployment - shippingservice') {
+            steps {
+                dir('kubernetes-files') {
+                    withCredentials([string(credentialsId: 'my-git-pattoken', variable: 'git_token')]) {
+                        sh """
+                            git config user.email "${GIT_EMAIL}"
+                            git config user.name "${GIT_USER_NAME}"
+                            sed -i "s#image:.*#image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shippingservice:${BUILD_NUMBER}#g" shippingservice.yaml
+                            git add shippingservice.yaml
+                            git commit -m "Update shippingservice image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                            git push https://${git_token}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:${GIT_BRANCH}
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
