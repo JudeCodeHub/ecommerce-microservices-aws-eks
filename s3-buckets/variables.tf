@@ -1,13 +1,13 @@
 variable "bucket1_name" {
   description = "Name of the first S3 bucket for Terraform state"
   type        = string
-  default     = "ecommerce-microservices-tfstate-bucket-1"
+  default     = "mj-tfstate-bucket-1"
 }
 
 variable "bucket2_name" {
   description = "Name of the second S3 bucket for Terraform state"
   type        = string
-  default     = "ecommerce-microservices-tfstate-bucket-2"
+  default     = "mj-tfstate-bucket-2"
 }
 
 variable "environment" {

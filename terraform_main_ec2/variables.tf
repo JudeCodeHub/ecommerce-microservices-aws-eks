@@ -64,7 +64,7 @@ variable "iam-role" {
 variable "ami_id" {
   description = "AMI ID for the EC2 instance"
   type        = string
-  default     = "ami-0150ccaf51ab55a51" // Replace with the latest AMI ID for your region
+  default     = "ami-0b6d9d3d33ba97d99"
 }
 
 variable "instance_type" {
@@ -74,9 +74,9 @@ variable "instance_type" {
 }
 
 variable "key_name" {
-  description = "EC2 keypair"
+  description = "Name to give the auto-generated EC2 key pair"
   type        = string
-  default     = "us-east-1"
+  default     = "jumphost-key"
 }
 
 variable "instance_name" {

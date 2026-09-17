@@ -111,7 +111,7 @@ cd ..
 Update your local kubeconfig to interact with the new cluster:
 
 ```bash
-aws eks update-kubeconfig --region us-east-1 --name project-eks
+aws eks update-kubeconfig --region us-east-1 --name mj-eks
 kubectl get nodes
 ```
 

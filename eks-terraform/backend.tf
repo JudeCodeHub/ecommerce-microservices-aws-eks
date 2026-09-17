@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "ecommerce-microservices-tfstate-bucket-2"
+    bucket = "mj-tfstate-bucket-2"
     key    = "k8/terraform.tfstate"
     region = "us-east-1"
   }

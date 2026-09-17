@@ -146,7 +146,7 @@ data "aws_security_group" "selected" {
 # EKS Cluster
 # ----------------------------
 resource "aws_eks_cluster" "eks" {
-  name     = "project-eks"
+  name     = "mj-eks"
   role_arn = aws_iam_role.master.arn
 
   vpc_config {
@@ -155,7 +155,7 @@ resource "aws_eks_cluster" "eks" {
   }
 
   tags = {
-    Name        = "project-eks-cluster"
+    Name        = "mj-eks-cluster"
     Environment = "dev"
     Terraform   = "true"
   }
@@ -185,7 +185,7 @@ resource "aws_eks_node_group" "node-grp" {
   }
 
   tags = {
-    Name = "project-eks-node-group"
+    Name = "mj-eks-node-group"
   }
 
   scaling_config {
