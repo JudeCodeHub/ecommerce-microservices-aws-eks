@@ -2,11 +2,11 @@ pipeline {
     agent any 
 
     environment {
-        AWS_ACCOUNT_ID = "<YOUR_AWS_ACCOUNT_ID>"
+        AWS_ACCOUNT_ID = sh(script: "aws sts get-caller-identity --query Account --output text", returnStdout: true).trim()
         AWS_REGION     = "us-east-1"
-        GIT_REPO_NAME  = "<YOUR_REPO_NAME>"
-        GIT_USER_NAME  = "<YOUR_GITHUB_USERNAME>"
-        GIT_EMAIL      = "<YOUR_EMAIL>"
+        GIT_REPO_NAME  = "ecommerce-microservices-aws-eks"
+        GIT_USER_NAME  = "JudeCodeHub"
+        GIT_EMAIL      = "JudeCodeHub@users.noreply.github.com"
         GIT_BRANCH     = "main"
         IMAGE_NAME     = "cartservice"
         REPO_URL       = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/cartservice"
